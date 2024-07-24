@@ -24,11 +24,35 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 26, 87, 192), 
-      body: Center(
-        child: Image.asset('assets/splash_image.png'), 
+  
+   Widget build(BuildContext context) {
+    return MaterialApp(
+      
+      home: Scaffold(
+         backgroundColor: Color.fromARGB(255, 54, 112, 214), 
+        appBar: AppBar(
+          title: Text('Bienvenidos Finanzas App'),
+        ),
+        body: Center(
+          child: Container(
+            width: 150.0,
+            height: 150.0,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.black,
+                width: 2.0,
+              ),
+            ),
+            padding: EdgeInsets.all(10.0),
+            child: ClipOval(
+              child: Image.network(
+                "https://picsum.photos/id/870/200/300?grayscale&blur=2",
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
