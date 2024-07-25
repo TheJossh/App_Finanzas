@@ -29,9 +29,10 @@ class _SplashScreenState extends State<SplashScreen> {
     return MaterialApp(
       
       home: Scaffold(
-         backgroundColor: Color.fromARGB(255, 54, 112, 214), 
+         backgroundColor: Color.fromARGB(255, 0, 168, 190), 
         appBar: AppBar(
           title: Text('Bienvenidos Finanzas App'),
+          backgroundColor:  Colors.cyan,
         ),
         body: Center(
           child: Container(

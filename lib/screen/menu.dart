@@ -1,5 +1,8 @@
+import 'package:aplicacion_finanzas/screen/AccountChartScreen.dart';
+import 'package:aplicacion_finanzas/screen/cuenta.dart';
+import 'package:aplicacion_finanzas/screen/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'pagos_habituales.dart';  // Importa la nueva página
+import 'pagos_habituales.dart';  
 
 
 
@@ -9,9 +12,10 @@ class Menu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 54, 112, 214),
+      backgroundColor:  Colors.cyan,
       appBar: AppBar(
-        title: Text('Home Page'),
+        title: Text('Pagina De Inicio'),
+        backgroundColor:  const Color.fromARGB(255, 0, 150, 170),
       ),
       drawer: Drawer(
         child: ListView(
@@ -23,39 +27,39 @@ class Menu extends StatelessWidget {
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.cyan,
               ),
             ),
             ListTile(
               leading: Icon(Icons.alarm),
-              title: Text('Recordatorio'),
+              title: Text('Pagos Recurrentes'),
               onTap: () {
                 
                 Navigator.push(context, MaterialPageRoute(builder: (context)=> PagosHabitualesScreen()));
               },
             ),
             ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Boton 2'),
+              leading: Icon(Icons.account_balance),
+              title: Text('Ajustes Cuenta'),
               onTap: () {
                 
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>AccountListScreen() ));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.bar_chart),
+              title: Text('Graficos de cuenta'),
+              onTap: () {
+                
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>AccountChartScreen() ));
               },
             ),
             ListTile(
               leading: Icon(Icons.alarm),
-              title: Text('Boton 3'),
-              onTap: () {
-                // Acción para el botón 3
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Boton 4'),
+              title: Text('Gastos Categoria'),
               onTap: () {
                 
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>AccountChartScreen() ));
               },
             ),
             ListTile(
@@ -75,19 +79,11 @@ class Menu extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Boton 7'),
+              leading: Icon(Icons.login),
+              title: Text('Salir'),
               onTap: () {
                 
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Boton 8'),
-              onTap: () {
-                
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>LoginScreen() ));
               },
             ),
           ],

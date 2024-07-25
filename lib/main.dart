@@ -9,6 +9,7 @@ import 'package:aplicacion_finanzas/screen/splash_screen.dart';
 
 
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -37,3 +38,5 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+

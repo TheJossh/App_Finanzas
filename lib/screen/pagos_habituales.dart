@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(PagosHabitualesApp());
 }
 
@@ -11,6 +15,7 @@ class PagosHabitualesApp extends StatelessWidget {
       title: 'Pagos Habituales',
       theme: ThemeData(
         primarySwatch: Colors.green,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: PagosHabitualesScreen(),
     );
@@ -23,7 +28,23 @@ class PagosHabitualesScreen extends StatefulWidget {
 }
 
 class _PagosHabitualesScreenState extends State<PagosHabitualesScreen> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Reminder> reminders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReminders();
+  }
+
+  Future<void> _loadReminders() async {
+    QuerySnapshot querySnapshot = await _firestore.collection('recordatorios').get();
+    setState(() {
+      reminders = querySnapshot.docs.map((doc) {
+        return Reminder.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList();
+    });
+  }
 
   void _agregarRecordatorio() async {
     final Reminder? newReminder = await Navigator.push(
@@ -32,8 +53,9 @@ class _PagosHabitualesScreenState extends State<PagosHabitualesScreen> {
     );
 
     if (newReminder != null) {
+      DocumentReference docRef = await _firestore.collection('recordatorios').add(newReminder.toMap());
       setState(() {
-        reminders.add(newReminder);
+        reminders.add(newReminder.copyWith(id: docRef.id));
       });
     }
   }
@@ -47,13 +69,15 @@ class _PagosHabitualesScreenState extends State<PagosHabitualesScreen> {
     );
 
     if (editedReminder != null) {
+      await _firestore.collection('recordatorios').doc(reminders[index].id).update(editedReminder.toMap());
       setState(() {
         reminders[index] = editedReminder;
       });
     }
   }
 
-  void _eliminarRecordatorio(int index) {
+  void _eliminarRecordatorio(int index) async {
+    await _firestore.collection('recordatorios').doc(reminders[index].id).delete();
     setState(() {
       reminders.removeAt(index);
     });
@@ -64,39 +88,50 @@ class _PagosHabitualesScreenState extends State<PagosHabitualesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Pagos Habituales'),
+         backgroundColor: Colors.cyan,
       ),
-      body: ListView.builder(
-        itemCount: reminders.length,
-        itemBuilder: (context, index) {
-          final reminder = reminders[index];
-          return ListTile(
-            title: Text(reminder.nombre),
-            subtitle: Text(
-              'Fecha Inicio: ${reminder.fechaInicio.day}/${reminder.fechaInicio.month}/${reminder.fechaInicio.year} '
-              'Hora: ${reminder.hora.hour}:${reminder.hora.minute} '
-              'Banco: ${reminder.cuenta} '
-              'Categoría: ${reminder.categoria}',
+      body: reminders.isEmpty
+          ? Center(child: Text('No hay recordatorios', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)))
+          : ListView.builder(
+              itemCount: reminders.length,
+              itemBuilder: (context, index) {
+                final reminder = reminders[index];
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(16),
+                    title: Text(reminder.nombre, style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Fecha Inicio: ${reminder.fechaInicio.day}/${reminder.fechaInicio.month}/${reminder.fechaInicio.year}'),
+                        Text('Hora: ${reminder.hora.hour}:${reminder.hora.minute}'),
+                        Text('Banco: ${reminder.cuenta ?? 'No especificado'}'),
+                        Text('Categoría: ${reminder.categoria ?? 'No especificado'}'),
+                        Text('Cantidad: ${reminder.cantidad}'),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => _editarRecordatorio(index),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => _eliminarRecordatorio(index),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () => _editarRecordatorio(index),
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () => _eliminarRecordatorio(index),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _agregarRecordatorio,
-        tooltip: 'Crear Recordatorio',
-        child: Icon(Icons.alarm),
+        tooltip: 'Crear Recordatorio de Pago',
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -121,7 +156,7 @@ class _RecordatorioScreenState extends State<RecordatorioScreen> {
   String? _categoria;
   late String _cantidad;
 
-  final List<String> _categorias = ['Ahorros ', 'Plan de Vida'];
+  final List<String> _categorias = ['Ahorros', 'Plan de Vida','Entretenimiento','Salud','Domesticos','Seguros','Prestamos'];
 
   @override
   void initState() {
@@ -219,7 +254,10 @@ class _RecordatorioScreenState extends State<RecordatorioScreen> {
               children: [
                 TextFormField(
                   initialValue: _nombre,
-                  decoration: InputDecoration(labelText: 'Nombre del recordatorio'),
+                  decoration: InputDecoration(
+                    labelText: 'Nombre del recordatorio',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, ingrese un nombre';
@@ -276,7 +314,10 @@ class _RecordatorioScreenState extends State<RecordatorioScreen> {
                 SizedBox(height: 16.0),
                 TextFormField(
                   initialValue: _cuenta,
-                  decoration: InputDecoration(labelText: 'Banco'),
+                  decoration: InputDecoration(
+                    labelText: 'Banco',
+                    border: OutlineInputBorder(),
+                  ),
                   onSaved: (value) {
                     _cuenta = value;
                   },
@@ -293,18 +334,23 @@ class _RecordatorioScreenState extends State<RecordatorioScreen> {
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      _categoria = value;
+                      _categoria = value!;
                     });
                   },
+                  onSaved: (value) {
+                    _categoria = value!;
+                  },
                   decoration: InputDecoration(
-                    labelText: 'Seleccione una categoría',
+                    border: OutlineInputBorder(),
                   ),
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
                   initialValue: _cantidad,
-                  decoration: InputDecoration(labelText: 'Cantidad'),
-                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Cantidad',
+                    border: OutlineInputBorder(),
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, ingrese una cantidad';
@@ -318,7 +364,7 @@ class _RecordatorioScreenState extends State<RecordatorioScreen> {
                 SizedBox(height: 32.0),
                 ElevatedButton(
                   onPressed: _submitForm,
-                  child: Text(widget.reminder == null ? 'Crear Recordatorio' : 'Guardar Cambios'),
+                  child: Text(widget.reminder == null ? 'Crear Recordatorio de Pago' : 'Guardar Cambios'),
                 ),
               ],
             ),
@@ -330,6 +376,7 @@ class _RecordatorioScreenState extends State<RecordatorioScreen> {
 }
 
 class Reminder {
+  final String id;
   final String nombre;
   final DateTime fechaInicio;
   final TimeOfDay hora;
@@ -339,6 +386,7 @@ class Reminder {
   final String cantidad;
 
   Reminder({
+    this.id = '',
     required this.nombre,
     required this.fechaInicio,
     required this.hora,
@@ -347,4 +395,54 @@ class Reminder {
     this.categoria,
     required this.cantidad,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'nombre': nombre,
+      'fechaInicio': fechaInicio.toIso8601String(),
+      'hora': '${hora.hour}:${hora.minute}',
+      'fechaFin': fechaFin?.toIso8601String(),
+      'cuenta': cuenta,
+      'categoria': categoria,
+      'cantidad': cantidad,
+    };
+  }
+
+  static Reminder fromMap(Map<String, dynamic> map, String documentId) {
+    return Reminder(
+      id: documentId,
+      nombre: map['nombre'],
+      fechaInicio: DateTime.parse(map['fechaInicio']),
+      hora: TimeOfDay(
+        hour: int.parse(map['hora'].split(':')[0]),
+        minute: int.parse(map['hora'].split(':')[1]),
+      ),
+      fechaFin: map['fechaFin'] != null ? DateTime.parse(map['fechaFin']) : null,
+      cuenta: map['cuenta'],
+      categoria: map['categoria'],
+      cantidad: map['cantidad'],
+    );
+  }
+
+  Reminder copyWith({
+    String? id,
+    String? nombre,
+    DateTime? fechaInicio,
+    TimeOfDay? hora,
+    DateTime? fechaFin,
+    String? cuenta,
+    String? categoria,
+    String? cantidad,
+  }) {
+    return Reminder(
+      id: id ?? this.id,
+      nombre: nombre ?? this.nombre,
+      fechaInicio: fechaInicio ?? this.fechaInicio,
+      hora: hora ?? this.hora,
+      fechaFin: fechaFin ?? this.fechaFin,
+      cuenta: cuenta ?? this.cuenta,
+      categoria: categoria ?? this.categoria,
+      cantidad: cantidad ?? this.cantidad,
+    );
+  }
 }
