@@ -1,6 +1,8 @@
 import 'package:aplicacion_finanzas/screen/AccountChartScreen.dart';
+import 'package:aplicacion_finanzas/screen/categorias.dart';
 import 'package:aplicacion_finanzas/screen/cuenta.dart';
 import 'package:aplicacion_finanzas/screen/login_screen.dart';
+import 'package:aplicacion_finanzas/screen/notas.dart';
 import 'package:flutter/material.dart';
 import 'pagos_habituales.dart';  
 
@@ -55,27 +57,19 @@ class Menu extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.alarm),
+              leading: Icon(Icons.speaker_notes),
+              title: Text('Notas'),
+              onTap: () {
+                
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>NotesScreen() ));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.category),
               title: Text('Gastos Categoria'),
               onTap: () {
                 
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>AccountChartScreen() ));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Boton 5'),
-              onTap: () {
-                
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.alarm),
-              title: Text('Boton 6'),
-              onTap: () {
-                
-                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) =>GraficaScreen() ));
               },
             ),
             ListTile(

@@ -5,21 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(PagosHabitualesApp());
-}
-
-class PagosHabitualesApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pagos Habituales',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: PagosHabitualesScreen(),
-    );
-  }
+  
 }
 
 class PagosHabitualesScreen extends StatefulWidget {
