@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, sort_child_properties_last
+
 import 'package:aplicacion_finanzas/screen/AccountChartScreen.dart';
 import 'package:aplicacion_finanzas/screen/categorias.dart';
 import 'package:aplicacion_finanzas/screen/cuenta.dart';

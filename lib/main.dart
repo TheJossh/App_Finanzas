@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors
+
 import 'package:aplicacion_finanzas/firebase_options.dart';
 import 'package:aplicacion_finanzas/screen/login_screen.dart';
 import 'package:aplicacion_finanzas/screen/menu.dart';
@@ -32,7 +34,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
-        '/home': (context) => Menu(),
+        '/home': (context) => const Menu(),
         '/register': (context) => RegisterScreen(),
       },
     );
